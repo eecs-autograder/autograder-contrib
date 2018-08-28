@@ -3,7 +3,7 @@
 import argparse
 import os
 import requests
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode
 
 
 def main():
@@ -17,15 +17,15 @@ def main():
     with open(args.token_file) as f:
         api_token = f.read().strip()
 
-    response = requests.post(
-        urljoin(args.base_url, f'/api/courses/{args.course_pk}/copy/'),
-        data={
-            'new_name': args.new_course_name,
-            'new_semester': args.new_course_semester,
-            'new_year': args.new_course_year
-        },
-        headers={'Authorization': f'Token {api_token}'}
-    )
+    url = urljoin(
+        args.base_url,
+        f'/api/projects/{args.project_pk}/copy_to_course/{args.target_course_pk}/')
+
+    if args.new_project_name:
+        url += '?'
+        url += urlencode({'new_project_name': args.new_project_name})
+
+    response = requests.post(url, headers={'Authorization': f'Token {api_token}'})
 
     print(response.json())
     response.raise_for_status()
@@ -34,11 +34,10 @@ def main():
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('course_pk', type=int)
-    parser.add_argument('new_course_name')
-    parser.add_argument('new_course_semester',
-                        choices=['Winter', 'Spring', 'Summer', 'Fall'])
-    parser.add_argument('new_course_year', type=int)
+    parser.add_argument('project_pk', type=int)
+    parser.add_argument('target_course_pk', type=int)
+
+    parser.add_argument('new_project_name', nargs='?')
 
     parser.add_argument('--base_url', '-u', type=str,
                         default='https://autograder.io/')
