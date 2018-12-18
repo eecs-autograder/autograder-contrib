@@ -5,17 +5,18 @@ import os
 import requests
 from urllib.parse import urljoin, urlencode
 
+import utils
+
 
 def main():
     args = parse_args()
 
     api_token = None
-    if not os.path.isfile(args.token_file):
-        print(f"Couldn't find token file: {args.token_file}")
+    try:
+        api_token = utils.get_api_token(args.token_file)
+    except utils.TokenFileNotFound as e:
+        print(e)
         exit(1)
-
-    with open(args.token_file) as f:
-        api_token = f.read().strip()
 
     url = urljoin(
         args.base_url,
@@ -41,7 +42,12 @@ def parse_args():
 
     parser.add_argument('--base_url', '-u', type=str,
                         default='https://autograder.io/')
-    parser.add_argument('--token_file', '-t', type=str, default='./.agtoken')
+    parser.add_argument(
+        '--token_file', '-t', type=str, default='.agtoken',
+        help="A filename or a path describing where to find the API token. "
+             "If a filename, searches the current directory and each "
+             "directory up to and including the current user's home "
+             "directory until the file is found.")
 
     return parser.parse_args()
 
