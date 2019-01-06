@@ -12,9 +12,17 @@ import utils
 def main():
     args = parse_args()
 
+    api_token = None
+    try:
+        api_token = utils.get_api_token(args.token_file)
+    except utils.TokenFileNotFound as e:
+        print(e)
+        exit(1)
+
     url = urljoin(args.base_url,
                   f'/api/projects/{args.project_id}/ag_test_suites/')
-    response = requests.get(url)
+    response = requests.get(
+        url, headers={'Authorization': f'Token {api_token}'})
     response.raise_for_status()
 
     if args.dump_json:
