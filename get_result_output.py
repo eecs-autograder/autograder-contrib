@@ -64,7 +64,7 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser(
         'Creates a ZIP archive containing the output '
-        'of an AG test suite, case, or command for all ultimate submissions.')
+        'of an AG test suite, or command for all ultimate submissions.')
     parser.add_argument('project_id')
 
     result_arg_group = parser.add_mutually_exclusive_group(required=True)
