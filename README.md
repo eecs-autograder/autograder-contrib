@@ -14,7 +14,7 @@ directory.
 
 # Scripts
 ## create_course.py (Python >= 3.6)
-__You must be granted permission to create courses in order to use this script. Contact jameslp at umich.edu for more information.__
+__You must be granted permission to create empty courses in order to use this script. Contact jameslp at umich.edu for more information. Note that cloning a course can be done by any admin for that course.__
 
 Creates an empty course and adds you to it as an admin. Courses must have a unique combination of name, semester, and year.
 
@@ -24,8 +24,6 @@ Examples:
 ```
 
 ## clone_course.py (Python >= 3.6)
-__You must be granted permission to create courses in order to use this script. Contact jameslp at umich.edu for more information.__
-
 Clones an existing course that you are an admin for. The new course will also contain copies of all the projects in the original course (including test case settings, but not including groups, submissions, or results). Courses must have a unique combination of name, semester, and year.
 
 Examples:
@@ -44,4 +42,27 @@ Examples:
 
 # Clone a project into a different course. A new name is optional.
 ./clone_project.py 42 44
+```
+
+## sandbox_docker_image.py (Python >= 3.6)
+Contains commands for displaying, editing, and creating sandbox Docker image metadata. Editing and creating can only be performed by superusers.
+
+Examples:
+```
+# List image data.
+./sandbox_docker_image.py list
+
+# Examine a specific image.
+# ./sandbox_docker_image.py detail [image_id]
+./sandbox_docker_image detail 3
+
+# Creates a new image.
+# ./sandbox_docker_image.py create [name] [display_name] [tag]
+./sandbox_docker_image.py create eecs9001 "EECS 9001" jameslp/eecs9001:1.0
+
+# Edits an existing image. --display_name and --tag can be used individually.
+# ./sandbox_docker_image.py [image_id] --display_name [new_display_name] --tag [new_tag]
+./sandbox_docker_image.py 4 --display_name "EECS 9002" --tag jameslp/eecs9002:1.0
+./sandbox_docker_image.py 4 --display_name "EECS 9002"
+./sandbox_docker_image.py 4 --tag jameslp/eecs9001:2.0
 ```

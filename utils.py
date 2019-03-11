@@ -1,6 +1,8 @@
 import os
 from typing import Iterator
 
+import requests
+
 
 def get_api_token(token_filename: str) -> str:
     token_not_found_msg = f'Requested token file: {token_filename} not found'
@@ -33,3 +35,13 @@ def walk_up_to_home_dir() -> Iterator[str]:
 
 class TokenFileNotFound(Exception):
     pass
+
+
+def check_response_status(response: requests.Response):
+    if not response.ok:
+        try:
+            print(response.json())
+        except ValueError:
+            print(response.text)
+
+        response.raise_for_status()
