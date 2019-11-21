@@ -1,7 +1,11 @@
+import copy
 import os
 from typing import Iterator
+from urllib.parse import urljoin
 
 import requests
+
+import utils
 
 
 def get_api_token(token_filename: str) -> str:
@@ -45,3 +49,40 @@ def check_response_status(response: requests.Response):
             print(response.text)
 
         response.raise_for_status()
+
+
+class HTTPClient:
+    def __init__(self, api_token, base_url):
+        self.api_token = api_token
+        self.base_url = base_url
+
+    def get(self, url, *args, **kwargs):
+        return self.do_request(requests.get, url, *args, **kwargs)
+
+    def get_paginated(self, url, *args, **kwargs):
+        page_url = url
+        while page_url:
+            response = self.get(page_url, *args, **kwargs)
+            utils.check_response_status(response)
+            for item in response.json()['results']:
+                yield item
+
+            page_url = response.json()['next']
+
+    def post(self, url, *args, **kwargs):
+        return self.do_request(requests.post, url, *args, **kwargs)
+
+    def put(self, url, *args, **kwargs):
+        return self.do_request(requests.put, url, *args, **kwargs)
+
+    def patch(self, url, *args, **kwargs):
+        return self.do_request(requests.patch, url, *args, **kwargs)
+
+    def delete(self, url, *args, **kwargs):
+        return self.do_request(requests.delete, url, *args, **kwargs)
+
+    def do_request(self, method_func, url, *args, **kwargs):
+        headers = copy.deepcopy(kwargs.pop('headers', {}))
+        headers['Authorization'] = f'Token {self.api_token}'
+        return method_func(
+            urljoin(self.base_url, url), *args, headers=headers, **kwargs)
