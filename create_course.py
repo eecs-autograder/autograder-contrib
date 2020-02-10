@@ -28,8 +28,7 @@ def main():
         headers={'Authorization': f'Token {api_token}'}
     )
 
-    print(response.json())
-    response.raise_for_status()
+    utils.check_response_status(response)
     print('New course created successfully')
 
 
