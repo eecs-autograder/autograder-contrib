@@ -20,7 +20,7 @@ def main():
 
     response = requests.post(
         urljoin(args.base_url, f'/api/courses/{args.course_pk}/copy/'),
-        data={
+        json={
             'new_name': args.new_course_name,
             'new_semester': args.new_course_semester,
             'new_year': args.new_course_year

@@ -20,7 +20,7 @@ def main():
 
     response = requests.post(
         urljoin(args.base_url, f'/api/courses/'),
-        data={
+        json={
             'name': args.course_name,
             'semester': args.course_semester,
             'year': args.course_year

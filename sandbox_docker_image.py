@@ -62,7 +62,7 @@ def create_image(base_url: str, api_token: str,
                  name: str, display_name: str, tag: str):
     response = requests.post(
         urljoin(base_url, f'/api/sandbox_docker_images/'),
-        data={
+        json={
             'name': name,
             'display_name': display_name,
             'tag': tag,
@@ -89,7 +89,7 @@ def edit_image(base_url: str,
 
     response = requests.patch(
         urljoin(base_url, f'/api/sandbox_docker_images/{pk}/'),
-        data=data,
+        json=data,
         headers={'Authorization': f'Token {api_token}'}
     )
     utils.check_response_status(response)
