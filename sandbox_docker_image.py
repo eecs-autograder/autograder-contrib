@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import sys
 from typing import Optional
 from urllib.parse import urljoin
 
@@ -146,13 +147,17 @@ def parse_args():
     )
 
     parser.add_argument('--base_url', '-u', type=str,
-                        default='https://autograder.io/api/')
+                        default='https://autograder.io/')
     parser.add_argument(
         '--token_file', '-t', type=str, default='.agtoken',
         help="A filename or a path describing where to find the API token. "
              "If a filename, searches the current directory and each "
              "directory up to and including the current user's home "
              "directory until the file is found.")
+
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        exit(1)
 
     return parser.parse_args()
 

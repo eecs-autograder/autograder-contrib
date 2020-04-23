@@ -16,7 +16,7 @@ def main():
         print(json.dumps(response.json(), indent=4))
     elif args.action == 'get_pages':
         response = list(client.get_paginated(args.url))
-        print(json.dumps(response.json(), indent=4))
+        print(json.dumps(response, indent=4))
     elif args.action == 'post':
         response = client.post(args.url, json=body)
     elif args.action == 'put':
