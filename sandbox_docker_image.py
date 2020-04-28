@@ -2,81 +2,69 @@
 
 import argparse
 import os
+import sys
 from typing import Optional
 from urllib.parse import urljoin
 
 import requests
 
-import utils
+from ag_contrib import http_client, utils
 
 
 def main():
     args = parse_args()
 
-    api_token = None
+    client = None
     try:
-        api_token = utils.get_api_token(args.token_file)
+        client = http_client.HTTPClient.make_default(
+            args.token_file, args.base_url)
     except utils.TokenFileNotFound as e:
         print(e)
         exit(1)
 
     if args.command == 'list':
-        list_images(args.base_url, api_token)
+        list_images(client)
     elif args.command == 'detail':
-        image_detail(args.base_url, api_token, args.pk)
+        image_detail(client, args.pk)
     elif args.command == 'create':
-        create_image(args.base_url, api_token,
+        create_image(client,
                      args.name, args.display_name, args.tag)
     elif args.command == 'edit':
-        edit_image(args.base_url, api_token, args.pk, args.display_name, args.tag)
+        edit_image(client, args.pk, args.display_name, args.tag)
 
 
-def list_images(base_url: str, api_token: str):
-    response = requests.get(
-        urljoin(base_url, f'/api/sandbox_docker_images/'),
-        headers={'Authorization': f'Token {api_token}'}
-    )
-    utils.check_response_status(response)
+def list_images(client: http_client.HTTPClient):
+    response = client.get('/api/sandbox_docker_images/')
+    http_client.check_response_status(response)
 
     for image in response.json():
         print(image_to_str(image))
 
 
-def image_detail(base_url: str, api_token: str, pk: int):
-    response = requests.get(
-        urljoin(base_url, f'/api/sandbox_docker_images/{pk}/'),
-        headers={'Authorization': f'Token {api_token}'}
-    )
-    utils.check_response_status(response)
+def image_detail(client: http_client.HTTPClient, pk: int):
+    response = client.get(f'/api/sandbox_docker_images/{pk}/')
+    http_client.check_response_status(response)
 
     print(image_to_str(response.json()))
 
 
-def image_to_str(image: dict) -> str:
-    return f"""{image['pk']}: {image['name']}
-    display_name: {image['display_name']}
-    tag: {image['tag']}"""
-
-
-def create_image(base_url: str, api_token: str,
+def create_image(client: http_client.HTTPClient,
                  name: str, display_name: str, tag: str):
-    response = requests.post(
-        urljoin(base_url, f'/api/sandbox_docker_images/'),
-        data={
+    response = client.post(
+        '/api/sandbox_docker_images/',
+        json={
             'name': name,
             'display_name': display_name,
             'tag': tag,
-        },
-        headers={'Authorization': f'Token {api_token}'}
+        }
     )
-    utils.check_response_status(response)
+    http_client.check_response_status(response)
 
     print('Image created:')
     print(image_to_str(response.json()))
 
 
-def edit_image(base_url: str,
-               api_token: str,
+def edit_image(client: http_client.HTTPClient,
                pk: int,
                display_name: Optional[str] = None,
                tag: Optional[str] = None):
@@ -87,15 +75,17 @@ def edit_image(base_url: str,
     if tag is not None:
         data['tag'] = tag
 
-    response = requests.patch(
-        urljoin(base_url, f'/api/sandbox_docker_images/{pk}/'),
-        data=data,
-        headers={'Authorization': f'Token {api_token}'}
-    )
-    utils.check_response_status(response)
+    response = client.patch(f'/api/sandbox_docker_images/{pk}/', json=data)
+    http_client.check_response_status(response)
 
     print('Image updated:')
     print(image_to_str(response.json()))
+
+
+def image_to_str(image: dict) -> str:
+    return f"""{image['pk']}: {image['name']}
+    display_name: {image['display_name']}
+    tag: {image['tag']}"""
 
 
 def parse_args():
@@ -164,6 +154,10 @@ def parse_args():
              "If a filename, searches the current directory and each "
              "directory up to and including the current user's home "
              "directory until the file is found.")
+
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        exit(1)
 
     return parser.parse_args()
 
