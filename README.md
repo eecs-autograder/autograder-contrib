@@ -34,7 +34,16 @@ print(json.dumps(response.json(), indent=4))
 
 # Scripts
 ## sandbox_docker_image.py (Python >= 3.6)
-Contains commands for displaying, editing, and creating sandbox Docker image metadata. Editing and creating can only be performed by superusers.
+You MUST specify a tag (other than "latest") in your docker image in order for it to be used by the autograder:
+
+```
+# ./sandbox_docker_image.py <id> --tag <imagename>:<tag>
+./sandbox_docker_image.py 4 --tag myimage:0
+```
+
+Images tagged "latest" will still be visible in the drop-down menu in the test suite interface, but won't run.
+
+`sandbox_docker_image.py` contains commands for displaying, editing, and creating sandbox Docker image metadata. Editing and creating can only be performed by superusers.
 
 Examples:
 ```
