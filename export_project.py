@@ -24,7 +24,7 @@ def main():
     ag_test_json = _download_json(
         client, f'/api/projects/{args.project_id}/ag_test_suites/')
     mutation_test_json = _download_json(
-        client, f'/api/projects/{args.project_id}/student_test_suites/')
+        client, f'/api/projects/{args.project_id}/mutation_test_suites/')
 
     handgrading_json = None
     if project_json['has_handgrading_rubric']:

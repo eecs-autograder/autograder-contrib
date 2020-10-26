@@ -57,9 +57,9 @@ def _create_project(client, course_id, project_json, project_name=None):
 
 def _load_sandbox_images(client, course_id):
     # Update when we deploy 4.0 to include course-linked images
-    response = client.get('/api/sandbox_docker_images/')
+    response = client.get(f'/api/courses/{course_id}/sandbox_docker_images/')
     check_response_status(response)
-    return {item['name']: item for item in response.json()}
+    return {item['display_name']: item for item in response.json()}
 
 
 def _import_instructor_files(client, project_pk, instructor_files_dir):
@@ -99,7 +99,7 @@ def _create_ag_tests(
         request_body = dict(suite_json)
         request_body.pop('ag_test_cases')
         request_body['sandbox_docker_image'] = (
-            sandbox_docker_images[suite_json['sandbox_docker_image']['name']])
+            sandbox_docker_images[suite_json['sandbox_docker_image']['display_name']])
         request_body['instructor_files_needed'] = [
             instructor_files[file_json['name']]
             for file_json in suite_json['instructor_files_needed']
@@ -159,7 +159,7 @@ def _create_mutation_test_suites(
     for suite_json in mutation_test_json:
         request_body = dict(suite_json)
         request_body['sandbox_docker_image'] = (
-            sandbox_docker_images[suite_json['sandbox_docker_image']['name']])
+            sandbox_docker_images[suite_json['sandbox_docker_image']['display_name']])
         request_body['instructor_files_needed'] = [
             instructor_files[file_json['name']]
             for file_json in suite_json['instructor_files_needed']
@@ -170,7 +170,7 @@ def _create_mutation_test_suites(
         ]
 
         suite_response = client.post(
-            f'/api/projects/{project_pk}/student_test_suites/', json=request_body)
+            f'/api/projects/{project_pk}/mutation_test_suites/', json=request_body)
         check_response_status(suite_response)
         suite = suite_response.json()
         result.append(suite)
