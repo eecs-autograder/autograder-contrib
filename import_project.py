@@ -57,9 +57,15 @@ def _create_project(client, course_id, project_json, project_name=None):
 
 def _load_sandbox_images(client, course_id):
     # Update when we deploy 4.0 to include course-linked images
-    response = client.get(f'/api/courses/{course_id}/sandbox_docker_images/')
-    check_response_status(response)
-    return {item['display_name']: item for item in response.json()}
+    global_images_response = client.get('/api/sandbox_docker_images/')
+    course_images_response = client.get(f'/api/courses/{course_id}/sandbox_docker_images/')
+
+    check_response_status(global_images_response)
+    check_response_status(course_images_response)
+
+    available_images = global_images_response.json() + course_images_response.json()
+
+    return {item['display_name']: item for item in available_images}
 
 
 def _import_instructor_files(client, project_pk, instructor_files_dir):
