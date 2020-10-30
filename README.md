@@ -33,6 +33,22 @@ print(json.dumps(response.json(), indent=4))
 ```
 
 # Scripts
+## Import/Export Project (Experimental)
+These two scripts can be used to save a project's settings to the local filesystem and later create a new project from those same settings.
+The data is stored mostly as JSON. Instructor files are downloaded and stored in a subdirectory.
+
+Examples:
+```
+# Export project settings. Data is saved in a new folder called "my_project" in this case.
+./export_project.py 42 my_project
+
+# Create a new project in a different course with those settings. Note that the first argument is the course ID.
+./import_project.py 10 my_project
+
+# Create a new project with the same settings but on a local instance of autograder.io. URL schema and domain are required.
+./import_project.py 2 --base_url http://localhost:9001 my_project
+```
+
 ## sandbox_docker_image.py (Python >= 3.6)
 You MUST specify a tag (other than "latest") in your docker image in order for it to be used by the autograder:
 
