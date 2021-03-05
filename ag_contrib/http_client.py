@@ -1,7 +1,10 @@
+import argparse
 import copy
+import json
 from urllib.parse import urljoin
 
 import requests
+from requests.models import HTTPError
 
 from . import utils
 
@@ -83,3 +86,70 @@ def check_response_status(response: requests.Response):
             print(response.text)
 
         response.raise_for_status()
+
+
+def main():
+    args = parse_args()
+    body = {} if args.json_body is None else json.loads(args.json_body)
+
+    client = HTTPClient.make_default(
+        token_filename=args.token_file, base_url=args.base_url)
+    try:
+        if args.action == 'get':
+            response = client.get(args.url)
+            check_response_status(response)
+            print(json.dumps(response.json(), indent=4))
+        elif args.action == 'get_pages':
+            response = list(client.get_paginated(args.url))
+            print(json.dumps(response, indent=4))
+        elif args.action == 'post':
+            response = client.post(args.url, json=body)
+            check_response_status(response)
+            if not args.quiet:
+                print(json.dumps(response.json(), indent=4))
+        elif args.action == 'put':
+            response = client.put(args.url, json=body)
+            check_response_status(response)
+            if not args.quiet:
+                print(json.dumps(response.json(), indent=4))
+        elif args.action == 'patch':
+            response = client.patch(args.url, json=body)
+            check_response_status(response)
+            if not args.quiet:
+                print(json.dumps(response.json(), indent=4))
+    except HTTPError as e:
+        if not args.quiet:
+            print(json.dumps(e.response.json()))
+        exit(1)
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'action',
+        choices=('get', 'get_pages', 'post', 'put', 'patch'))
+    parser.add_argument('url', type=str)
+
+    parser.add_argument(
+        '--json_body', '-j',
+        type=str,
+        default=None,
+        help='JSON data (string-encoded) to be added to the request body.'
+    )
+    parser.add_argument(
+        '--quiet', '-q', default=False, action='store_true',
+        help="Don't print the response data for POST, PUT, and PATCH requests."
+    )
+
+    parser.add_argument('--base_url', '-u', type=str,
+                        default='https://autograder.io/')
+    parser.add_argument(
+        '--token_file', '-t', type=str, default='.agtoken',
+        help="A filename or a path describing where to find the API token. "
+             "If a filename, searches the current directory and each "
+             "directory up to and including the current user's home "
+             "directory until the file is found.")
+    return parser.parse_args()
+
+
+if __name__ == '__main__':
+    main()
