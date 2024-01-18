@@ -1,0 +1,12 @@
+datamodel-codegen \
+    --input ag_contrib/config/generated/schema.yml \
+    --input-file-type openapi \
+    --output ag_contrib/config/generated/schema.py\
+    --use-annotated \
+    --use-generic-container-types \
+    --use-standard-collections \
+    --use-non-positive-negative-number-constrained-types \
+    --use-union-operator \
+    --target-python-version 3.10 \
+    --strip-default-none \
+    --strict-nullable

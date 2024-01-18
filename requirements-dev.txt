@@ -1,2 +1,4 @@
-pycodestyle==2.4.0
-pydocstyle==2.1.1
+pycodestyle
+pydocstyle
+mypy
+datamodel-code-generator
