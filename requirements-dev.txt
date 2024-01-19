@@ -2,3 +2,4 @@ pycodestyle
 pydocstyle
 mypy
 datamodel-code-generator
+black

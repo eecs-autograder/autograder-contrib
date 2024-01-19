@@ -6,11 +6,14 @@ import argparse
 from ag_contrib.config.generated.schema import Semester
 
 from ag_contrib.config.init_project import init_project
+from ag_contrib.config.save_project import save_project
 
 
 def main():
     args = parse_args()
-    args.func(**vars(args))
+    kwargs = vars(args)
+    func = kwargs.pop('func')
+    func(**kwargs)
 
 
 def parse_args() -> argparse.ArgumentParser:
@@ -40,15 +43,15 @@ def make_config_parser(tool_parsers):
     init_project_parser.add_argument('course_name')
     init_project_parser.add_argument('course_term', choices=[semester.value for semester in Semester])
     init_project_parser.add_argument('course_year')
-    init_project_parser.add_argument('--config_filename', '-f', default=DEFAULT_CONFIG_FILENAME)
+    init_project_parser.add_argument('--config_file', '-f', default=DEFAULT_config_file)
     init_project_parser.set_defaults(func=init_project)
 
     save_project_parser = subparsers.add_parser('save_project')
-    save_project_parser.add_argument('config_file', default=DEFAULT_CONFIG_FILENAME)
-    save_project_parser.set_defaults(func=lambda: None)
+    save_project_parser.add_argument('--config_file', '-f', default=DEFAULT_config_file)
+    save_project_parser.set_defaults(func=save_project)
 
 
-DEFAULT_CONFIG_FILENAME = 'ag_project.yml'
+DEFAULT_config_file = 'ag_project.yml'
 
 
 if __name__ == '__main__':

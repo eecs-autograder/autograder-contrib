@@ -15,6 +15,10 @@ class CourseData(BaseModel):
 class InstructorFileConfig(BaseModel):
     local_path: FilePath
 
+    @property
+    def name(self) -> str:
+        return self.local_path.name
+
 
 class StudentFileConfig(BaseModel):
     pattern: str
@@ -185,14 +189,14 @@ class CommandConfig(BaseModel):
     virtual_memory_limit: int = 500 * 10 ** 6
     block_process_spawn: bool = False
 
-    repeat: list[dict[str, str]] = []
+    repeat: list[dict[str, object]] = []
 
 
 class TestCaseConfig(BaseModel):
     name: str
     commands: list[CommandConfig] = []
 
-    repeat: list[dict[str, str]] = []
+    repeat: list[dict[str, object]] = []
 
 
 class TestSuiteConfig(BaseModel):
@@ -202,13 +206,18 @@ class TestSuiteConfig(BaseModel):
     test_cases: list[TestCaseConfig] = []
 
 
-class ProjectConfig(BaseModel):
+class ProjectSettings(BaseModel):
     name: str
+
+
+class ProjectConfig(BaseModel):
+    settings: ProjectSettings
     course: CourseData
+    student_files: list[StudentFileConfig] = []
+    instructor_files: list[InstructorFileConfig] = []
     test_suites: list[TestSuiteConfig] = []
 
 
 class AGConfig(BaseModel):
     project: ProjectConfig
-
-
+    feedback_presets: dict[str, AGTestCommandFeedbackConfig] = BUILTIN_FDBK_PRESETS

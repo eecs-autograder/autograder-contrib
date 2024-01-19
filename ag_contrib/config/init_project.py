@@ -1,7 +1,7 @@
 from fastapi.encoders import jsonable_encoder
 import yaml
 from ag_contrib.config.generated.schema import Semester
-from ag_contrib.config.models import CommandConfig, CourseData, ProjectConfig, TestCaseConfig, TestSuiteConfig
+from ag_contrib.config.models import AGConfig, CommandConfig, CourseData, InstructorFileConfig, ProjectConfig, ProjectSettings, StudentFileConfig, TestCaseConfig, TestSuiteConfig
 
 
 def init_project(
@@ -9,12 +9,14 @@ def init_project(
     course_name: str,
     course_term: Semester,
     course_year: int,
-    config_filename: str,
+    config_file: str,
     **kwargs: object,
 ):
     project = ProjectConfig(
-        name=project_name,
+        settings=ProjectSettings(name=project_name),
         course=CourseData(name=course_name, semester=course_term, year=course_year),
+        student_files=[StudentFileConfig(pattern='hello.py')],
+        instructor_files=[InstructorFileConfig(local_path='tests.py')],
         test_suites=[
             TestSuiteConfig(
                 name='Suite 1',
@@ -33,5 +35,5 @@ def init_project(
         ],
     )
 
-    with open(config_filename, 'w') as f:
-        yaml.dump(jsonable_encoder(project), f, sort_keys=False)
+    with open(config_file, 'w') as f:
+        yaml.dump(jsonable_encoder(AGConfig(project=project)), f, sort_keys=False)
