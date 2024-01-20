@@ -1,12 +1,50 @@
 import argparse
-import copy
 import json
+from typing import TYPE_CHECKING, Mapping, TypeAlias, TypedDict
 from urllib.parse import urljoin
 
 import requests
 from requests.models import HTTPError
+from typing_extensions import Unpack
 
 from . import utils
+
+_HeadersMapping: TypeAlias = Mapping[str, str | bytes]
+if TYPE_CHECKING:
+    from _typeshed import Incomplete
+    from requests.sessions import (
+        RequestsCookieJar,
+        _Auth,  # pyright: ignore[reportPrivateUsage]
+        _Cert,  # pyright: ignore[reportPrivateUsage]
+        _Data,  # pyright: ignore[reportPrivateUsage]
+        _Files,  # pyright: ignore[reportPrivateUsage]
+        _HooksInput,  # pyright: ignore[reportPrivateUsage]
+        _Params,  # pyright: ignore[reportPrivateUsage]
+        _TextMapping,  # pyright: ignore[reportPrivateUsage]
+        _Timeout,  # pyright: ignore[reportPrivateUsage]
+        _Verify,  # pyright: ignore[reportPrivateUsage]
+    )
+
+    class RequestKwargs(TypedDict, total=False):
+        params: _Params | None
+        data: _Data | None
+        headers: _HeadersMapping | None
+        cookies: RequestsCookieJar | _TextMapping | None
+        files: _Files | None
+        auth: _Auth | None
+        timeout: _Timeout | None
+        allow_redirects: bool
+        proxies: _TextMapping | None
+        hooks: _HooksInput | None
+        stream: bool | None
+        verify: _Verify | None
+        cert: _Cert | None
+        json: Incomplete | None
+
+else:
+
+    class RequestKwargs(TypedDict):
+        pass
 
 
 class HTTPClient:
@@ -21,7 +59,7 @@ class HTTPClient:
     """
 
     @staticmethod
-    def make_default(token_filename='.agtoken', base_url='https://autograder.io/'):
+    def make_default(token_filename: str = ".agtoken", base_url: str = "https://autograder.io/"):
         """
         Creates an HTTPClient instance with the API token found in token_filename.
         Token file discovery works as follows:
@@ -37,7 +75,7 @@ class HTTPClient:
         """
         return HTTPClient(utils.get_api_token(token_filename), base_url)
 
-    def __init__(self, api_token, base_url):
+    def __init__(self, api_token: str, base_url: str):
         """
         Avoid constructing HTTPClient directly.
         Instead, use HTTPClient.make_default.
@@ -45,37 +83,40 @@ class HTTPClient:
         self.api_token = api_token
         self.base_url = base_url
 
-    def get(self, url, *args, **kwargs):
-        return self.do_request(requests.get, url, *args, **kwargs)
+    def get(self, url: str, **kwargs: Unpack[RequestKwargs]):
+        return self.do_request("get", url, **kwargs)
 
-    def get_paginated(self, url, *args, **kwargs):
+    def get_paginated(self, url: str, **kwargs: Unpack[RequestKwargs]):
         page_url = url
         while page_url:
-            response = self.get(page_url, *args, **kwargs)
+            response = self.get(page_url, **kwargs)
             check_response_status(response)
-            for item in response.json()['results']:
+            for item in response.json()["results"]:
                 yield item
 
-            page_url = response.json()['next']
+            page_url = response.json()["next"]
 
-    def post(self, url, *args, **kwargs):
-        return self.do_request(requests.post, url, *args, **kwargs)
+    def post(self, url: str, **kwargs: Unpack[RequestKwargs]):
+        return self.do_request("post", url, **kwargs)
 
-    def put(self, url, *args, **kwargs):
-        return self.do_request(requests.put, url, *args, **kwargs)
+    def put(self, url: str, **kwargs: Unpack[RequestKwargs]):
+        return self.do_request("put", url, **kwargs)
 
-    def patch(self, url, *args, **kwargs):
-        return self.do_request(requests.patch, url, *args, **kwargs)
+    def patch(self, url: str, **kwargs: Unpack[RequestKwargs]):
+        return self.do_request("patch", url, **kwargs)
 
-    def delete(self, url, *args, **kwargs):
-        return self.do_request(requests.delete, url, *args, **kwargs)
+    def delete(self, url: str, **kwargs: Unpack[RequestKwargs]):
+        return self.do_request("delete", url, **kwargs)
 
-    def do_request(self, method_func, url, *args, **kwargs):
-        headers = copy.deepcopy(kwargs.pop('headers', {}))
-        headers['Authorization'] = f'Token {self.api_token}'
-        # print(urljoin(self.base_url, url))
-        return method_func(
-            urljoin(self.base_url, url), *args, headers=headers, **kwargs)
+    def do_request(self, method: str, url: str, **kwargs: Unpack[RequestKwargs]):
+        updated_headers = {}
+        if "headers" in kwargs and kwargs["headers"] is not None:
+            updated_headers = dict(kwargs["headers"])
+
+        updated_headers["Authorization"] = f"Token {self.api_token}"
+        kwargs["headers"] = updated_headers
+
+        return requests.request(method, urljoin(self.base_url, url), **kwargs)
 
 
 def check_response_status(response: requests.Response):
@@ -90,29 +131,28 @@ def check_response_status(response: requests.Response):
 
 def main():
     args = parse_args()
-    body = {} if args.json_body is None else json.loads(args.json_body)
+    body: dict[str, object] = {} if args.json_body is None else json.loads(args.json_body)
 
-    client = HTTPClient.make_default(
-        token_filename=args.token_file, base_url=args.base_url)
+    client = HTTPClient.make_default(token_filename=args.token_file, base_url=args.base_url)
     try:
-        if args.action == 'get':
+        if args.action == "get":
             response = client.get(args.url)
             check_response_status(response)
             print(json.dumps(response.json(), indent=4))
-        elif args.action == 'get_pages':
+        elif args.action == "get_pages":
             response = list(client.get_paginated(args.url))
             print(json.dumps(response, indent=4))
-        elif args.action == 'post':
+        elif args.action == "post":
             response = client.post(args.url, json=body)
             check_response_status(response)
             if not args.quiet:
                 print(json.dumps(response.json(), indent=4))
-        elif args.action == 'put':
+        elif args.action == "put":
             response = client.put(args.url, json=body)
             check_response_status(response)
             if not args.quiet:
                 print(json.dumps(response.json(), indent=4))
-        elif args.action == 'patch':
+        elif args.action == "patch":
             response = client.patch(args.url, json=body)
             check_response_status(response)
             if not args.quiet:
@@ -122,34 +162,40 @@ def main():
             print(json.dumps(e.response.json()))
         exit(1)
 
+
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        'action',
-        choices=('get', 'get_pages', 'post', 'put', 'patch'))
-    parser.add_argument('url', type=str)
+    parser.add_argument("action", choices=("get", "get_pages", "post", "put", "patch"))
+    parser.add_argument("url", type=str)
 
     parser.add_argument(
-        '--json_body', '-j',
+        "--json_body",
+        "-j",
         type=str,
         default=None,
-        help='JSON data (string-encoded) to be added to the request body.'
+        help="JSON data (string-encoded) to be added to the request body.",
     )
     parser.add_argument(
-        '--quiet', '-q', default=False, action='store_true',
-        help="Don't print the response data for POST, PUT, and PATCH requests."
+        "--quiet",
+        "-q",
+        default=False,
+        action="store_true",
+        help="Don't print the response data for POST, PUT, and PATCH requests.",
     )
 
-    parser.add_argument('--base_url', '-u', type=str,
-                        default='https://autograder.io/')
+    parser.add_argument("--base_url", "-u", type=str, default="https://autograder.io/")
     parser.add_argument(
-        '--token_file', '-t', type=str, default='.agtoken',
+        "--token_file",
+        "-t",
+        type=str,
+        default=".agtoken",
         help="A filename or a path describing where to find the API token. "
-             "If a filename, searches the current directory and each "
-             "directory up to and including the current user's home "
-             "directory until the file is found.")
+        "If a filename, searches the current directory and each "
+        "directory up to and including the current user's home "
+        "directory until the file is found.",
+    )
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -2,3 +2,4 @@ requests
 pydantic
 pydantic[email]
 PyYAML
+typing_extensions

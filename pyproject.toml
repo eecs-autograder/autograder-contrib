@@ -40,8 +40,10 @@ exclude = "generated"
 [tool.pydocstyle]
 ignore = "D1,D200,D203,D204,D205,D212,D4"
 
-[tool.mypy]
-strict = true
+[tool.pyright]
+include = ["src"]
+#exclude = ["src/ag_contrib/http_client.py"]
+strict = ["src"]
 
 [tool.isort]
 profile = "black"

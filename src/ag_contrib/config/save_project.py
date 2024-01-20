@@ -1,10 +1,9 @@
 import yaml
 
 try:
-    from yaml import CDumper as Dumper
     from yaml import CLoader as Loader
 except ImportError:
-    from yaml import Loader, Dumper
+    from yaml import Loader
 
 from ag_contrib.config.models import (
     AGConfig,
@@ -107,7 +106,7 @@ def save_project(config_file: str, *, base_url: str, token_file: str):
                 f'/api/ag_test_suites/{test_suites[suite_data.name]["pk"]}/',
                 json=suite_data.model_dump(
                     exclude_unset=True,
-                    exclude=["test_cases", "student_files_needed", "instructor_files_needed"],
+                    exclude={"test_cases", "student_files_needed", "instructor_files_needed"},
                 )
                 | {
                     "student_files_needed": [
@@ -125,7 +124,7 @@ def save_project(config_file: str, *, base_url: str, token_file: str):
                 f'/api/projects/{project["pk"]}/ag_test_suites/',
                 json=suite_data.model_dump(
                     exclude_unset=True,
-                    exclude=["test_cases", "student_files_needed", "instructor_files_needed"],
+                    exclude={"test_cases", "student_files_needed", "instructor_files_needed"},
                 )
                 | {
                     "student_files_needed": [
@@ -230,7 +229,7 @@ def _create_or_update_test_shallow(
     test_suites: dict[str, dict],
     test_cases: dict[str, dict],
 ) -> None:
-    request_body = test_data.model_dump(exclude_unset=True, exclude=["commands", "repeat"])
+    request_body = test_data.model_dump(exclude_unset=True, exclude={"commands", "repeat"})
 
     print("  * Checking test case", test_data.name, "...")
     if test_data.name in test_cases:
@@ -421,7 +420,7 @@ def repeat_command(
         )
 
 
-def apply_substitutions(string: str, sub: list[dict[str, object]]) -> str:
+def apply_substitutions(string: str, sub: dict[str, object]) -> str:
     for placeholder, replacement in sub.items():
         string = string.replace(placeholder, str(replacement))
 

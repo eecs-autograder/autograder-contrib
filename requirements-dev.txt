@@ -59,12 +59,10 @@ multidict==6.0.4
     # via
     #   aiohttp
     #   yarl
-mypy==1.8.0
-    # via -r requirements-dev.in
 mypy-extensions==1.0.0
-    # via
-    #   black
-    #   mypy
+    # via black
+nodeenv==1.8.0
+    # via pyright
 packaging==23.2
     # via
     #   black
@@ -86,6 +84,8 @@ pydantic-core==2.14.6
     #   pydantic
 pydocstyle==6.3.0
     # via -r requirements-dev.in
+pyright==1.1.347
+    # via -r requirements-dev.in
 pyyaml==6.0.1
     # via
     #   -c requirements.txt
@@ -95,15 +95,23 @@ snowballstemmer==2.2.0
 toml==0.10.2
     # via datamodel-code-generator
 tomli==2.0.1
-    # via
-    #   black
-    #   mypy
+    # via black
+types-pyyaml==6.0.12.12
+    # via -r requirements-dev.in
+types-requests==2.31.0.20240106
+    # via -r requirements-dev.in
 typing-extensions==4.9.0
     # via
     #   -c requirements.txt
     #   black
-    #   mypy
     #   pydantic
     #   pydantic-core
+urllib3==2.1.0
+    # via
+    #   -c requirements.txt
+    #   types-requests
 yarl==1.9.4
     # via aiohttp
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

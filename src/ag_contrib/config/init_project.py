@@ -5,10 +5,8 @@ from ag_contrib.config.models import (
     AGConfig,
     CommandConfig,
     CourseData,
-    InstructorFileConfig,
     ProjectConfig,
     ProjectSettings,
-    StudentFileConfig,
     TestCaseConfig,
     TestSuiteConfig,
 )

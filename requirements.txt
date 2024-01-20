@@ -28,6 +28,7 @@ requests==2.31.0
     # via -r requirements.in
 typing-extensions==4.9.0
     # via
+    #   -r requirements.in
     #   pydantic
     #   pydantic-core
 urllib3==2.1.0

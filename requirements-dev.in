@@ -1,7 +1,9 @@
 -c requirements.txt
 pycodestyle
 pydocstyle
-mypy
 datamodel-code-generator
 black
 isort
+pyright
+types-requests
+types-PyYAML
