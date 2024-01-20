@@ -1,12 +1,12 @@
 """
-Set up autograder.io assignments using a yaml config file.
+Set up autograder.io assignments using a YAML config file.
 """
 
 import argparse
-from ag_contrib.config.generated.schema import Semester
 
-from ag_contrib.config.init_project import init_project
-from ag_contrib.config.save_project import save_project
+from .config.init_project import init_project
+from .config.generated.schema import Semester
+from .config.save_project import save_project
 
 
 def main():

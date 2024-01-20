@@ -195,6 +195,7 @@ class CommandConfig(BaseModel):
 class TestCaseConfig(BaseModel):
     name: str
     commands: list[CommandConfig] = []
+    # FIXME: sandbox and maybe other settings?
 
     repeat: list[dict[str, object]] = []
 

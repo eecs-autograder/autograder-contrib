@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools"]#, "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autograder-contrib"
+version = "2.0.0.dev1"
+authors = [
+  { name="James Perretta", email="jameslp@umich.edu" },
+]
+description = "A command-line http client and other utilities for using the autograder.io API."
+readme = "README.md"
+
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)"
+]
+#license = "GNU Lesser General Public License v3"
+keywords = ["autograder"]
+
+dynamic = ["dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/eecs-autograder/autograder-contrib"
+Issues = "https://github.com/eecs-autograder/autograder-contrib/issues"
+
+[project.scripts]
+agcli = "ag_contrib.http_client:main"
+ag = "ag_contrib.__main__:main"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.in"] }
+
+[tool.pycodestyle]
+ignore = "W503,E133"
+max-line-length = 99
+exclude = "generated"
+
+[tool.pydocstyle]
+ignore = "D1,D200,D203,D204,D205,D212,D4"
+
+[tool.mypy]
+strict = true
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 99
+target-version = ["py310"]

@@ -1,0 +1,4 @@
+requests
+pydantic
+pydantic[email]
+PyYAML

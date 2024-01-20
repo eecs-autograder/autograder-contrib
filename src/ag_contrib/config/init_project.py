@@ -1,7 +1,17 @@
-from fastapi.encoders import jsonable_encoder
 import yaml
+
 from ag_contrib.config.generated.schema import Semester
-from ag_contrib.config.models import AGConfig, CommandConfig, CourseData, InstructorFileConfig, ProjectConfig, ProjectSettings, StudentFileConfig, TestCaseConfig, TestSuiteConfig
+from ag_contrib.config.models import (
+    AGConfig,
+    CommandConfig,
+    CourseData,
+    InstructorFileConfig,
+    ProjectConfig,
+    ProjectSettings,
+    StudentFileConfig,
+    TestCaseConfig,
+    TestSuiteConfig,
+)
 
 
 def init_project(
@@ -15,17 +25,17 @@ def init_project(
     project = ProjectConfig(
         settings=ProjectSettings(name=project_name),
         course=CourseData(name=course_name, semester=course_term, year=course_year),
-        student_files=[StudentFileConfig(pattern='hello.py')],
-        instructor_files=[InstructorFileConfig(local_path='tests.py')],
+        # student_files=[StudentFileConfig(pattern="hello.py")],
+        # instructor_files=[InstructorFileConfig(local_path="tests.py")],
         test_suites=[
             TestSuiteConfig(
-                name='Suite 1',
+                name="Suite 1",
                 test_cases=[
                     TestCaseConfig(
-                        name='Test 1',
+                        name="Test 1",
                         commands=[
                             CommandConfig(
-                                name='Test 1',
+                                name="Test 1",
                                 cmd='echo "Hello!"',
                             )
                         ],
@@ -35,5 +45,5 @@ def init_project(
         ],
     )
 
-    with open(config_file, 'w') as f:
-        yaml.dump(jsonable_encoder(AGConfig(project=project)), f, sort_keys=False)
+    with open(config_file, "w") as f:
+        yaml.dump(AGConfig(project=project).model_dump(mode="json"), f, sort_keys=False)
