@@ -1,15 +1,18 @@
+from pathlib import Path
 import yaml
 
 from ag_contrib.config.generated.schema import Semester
 from ag_contrib.config.models import (
     AGConfig,
-    CommandConfig,
-    CourseData,
+    CourseSelection,
+    InstructorFileConfig,
+    MultiCmdTestCaseConfig,
+    MultiCommandConfig,
     ProjectConfig,
-    ProjectSettings,
-    TestCaseConfig,
+    SingleCmdTestCaseConfig,
     TestSuiteConfig,
 )
+from ag_contrib.config.generated import schema as ag_schema
 
 
 def init_project(
@@ -21,23 +24,24 @@ def init_project(
     **kwargs: object,
 ):
     project = ProjectConfig(
-        settings=ProjectSettings(name=project_name),
-        course=CourseData(name=course_name, semester=course_term, year=course_year),
-        # student_files=[StudentFileConfig(pattern="hello.py")],
-        # instructor_files=[InstructorFileConfig(local_path="tests.py")],
+        # FIXME: Make a project settings and course settings model
+        name=project_name,
+        course=CourseSelection(name=course_name, semester=course_term, year=course_year),
+        student_files=[
+            ag_schema.CreateExpectedStudentFile(
+                pattern="hello.py", min_num_matches=1, max_num_matches=1
+            )
+        ],
+        instructor_files=[InstructorFileConfig(local_path=Path("tests.py"))],
         test_suites=[
             TestSuiteConfig(
                 name="Suite 1",
                 test_cases=[
-                    TestCaseConfig(
-                        name="Test 1",
-                        commands=[
-                            CommandConfig(
-                                name="Test 1",
-                                cmd='echo "Hello!"',
-                            )
-                        ],
-                    )
+                    SingleCmdTestCaseConfig(name="Test 1", cmd='echo "Hello 1!"'),
+                    MultiCmdTestCaseConfig(
+                        name="Test 2",
+                        commands=[MultiCommandConfig(name="Test 2", cmd='echo "Hello 2!"')],
+                    ),
                 ],
             )
         ],

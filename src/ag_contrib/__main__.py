@@ -3,6 +3,7 @@ Set up autograder.io assignments using a YAML config file.
 """
 
 import argparse
+from typing import get_args
 
 from .config.generated.schema import Semester
 from .config.init_project import init_project
@@ -39,7 +40,7 @@ def parse_args():
     init_project_parser.add_argument("project_name")
     init_project_parser.add_argument("course_name")
     init_project_parser.add_argument(
-        "course_term", choices=[semester.value for semester in Semester]
+        "course_term", choices=get_args(Semester)
     )
     init_project_parser.add_argument("course_year")
     init_project_parser.add_argument("--config_file", "-f", default=DEFAULT_config_file)
